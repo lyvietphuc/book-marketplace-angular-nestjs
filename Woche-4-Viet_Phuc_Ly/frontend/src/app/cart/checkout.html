@@ -1,0 +1,92 @@
+<h1 class="page-title">Kasse</h1>
+
+@if (cart.items().length === 0) {
+  <p>Ihr Warenkorb ist leer. <a routerLink="/">Weiter einkaufen</a></p>
+} @else {
+  <div class="layout">
+    <form
+      class="address"
+      [formGroup]="form"
+      (ngSubmit)="placeOrder()"
+      novalidate
+      id="checkout-form"
+    >
+      <h2>Lieferadresse</h2>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Vor- und Nachname</mat-label>
+        <input matInput formControlName="name" autocomplete="name" />
+        @if (form.controls.name.hasError('required')) {
+          <mat-error>Bitte Namen eingeben.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Straße und Hausnummer</mat-label>
+        <input matInput formControlName="street" autocomplete="street-address" />
+        @if (form.controls.street.hasError('required')) {
+          <mat-error>Bitte Straße und Hausnummer eingeben.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>PLZ</mat-label>
+        <input
+          matInput
+          formControlName="zip"
+          autocomplete="postal-code"
+          inputmode="numeric"
+          maxlength="5"
+        />
+        @if (form.controls.zip.invalid) {
+          <mat-error>5 Ziffern</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Ort</mat-label>
+        <input matInput formControlName="city" autocomplete="address-level2" />
+        @if (form.controls.city.hasError('required')) {
+          <mat-error>Bitte Ort eingeben.</mat-error>
+        }
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Land</mat-label>
+        <input matInput formControlName="country" readonly />
+        <mat-hint>Wir liefern derzeit nur innerhalb Deutschlands.</mat-hint>
+      </mat-form-field>
+    </form>
+
+    <aside class="summary">
+      <h2>Ihre Bestellung</h2>
+      @for (group of cart.groups(); track group.shop.id) {
+        <div class="shop">{{ group.shop.name }}</div>
+        @for (item of group.items; track item.bookId) {
+          <div class="line">
+            <span>{{ item.quantity }} × {{ item.title }}</span
+            ><span>{{ item.priceCents * item.quantity | euro }}</span>
+          </div>
+        }
+        <div class="line">
+          <span>Versand</span><span>{{ group.shippingCents | euro }}</span>
+        </div>
+      }
+      <mat-divider />
+      <div class="row total">
+        <span>Gesamt</span><span>{{ cart.totalCents() | euro }}</span>
+      </div>
+      <small>inkl. 7 % MwSt.</small>
+
+      @if (errorMessage()) {
+        <p class="error-box" role="alert">{{ errorMessage() }}</p>
+      }
+      <button
+        mat-flat-button
+        class="checkout"
+        type="submit"
+        form="checkout-form"
+        [disabled]="submitting()"
+      >
+        {{ submitting() ? 'Wird bestellt …' : 'Jetzt bestellen' }}
+      </button>
+      <span class="no-payment">Übungsprojekt: Es findet keine Bezahlung statt.</span>
+      <a mat-button routerLink="/warenkorb"><mat-icon>arrow_back</mat-icon> Zurück zum Warenkorb</a>
+    </aside>
+  </div>
+}

@@ -1,0 +1,120 @@
+<h1 class="page-title">Meine Bestellungen</h1>
+
+@if (newOrders().length > 0) {
+  <div class="success-box thanks">
+    <mat-icon>check_circle</mat-icon>
+    <div>
+      <strong>Vielen Dank für Ihre Bestellung!</strong>
+      <div>
+        @if (newOrders().length > 1) {
+          Ihre Bestellung wurde in {{ newOrders().length }} Lieferungen aufgeteilt:
+        }
+        @for (o of newOrders(); track o.id) {
+          <span class="number">{{ o.orderNumber }}</span>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (errorMessage()) {
+  <p class="error-box" role="alert">{{ errorMessage() }}</p>
+}
+
+@if (!loading() && orders().length === 0 && !errorMessage()) {
+  <div class="empty">
+    <mat-icon>receipt_long</mat-icon>
+    <p>Sie haben noch keine Bestellungen.</p>
+    <a mat-flat-button routerLink="/">Jetzt stöbern</a>
+  </div>
+}
+
+<mat-accordion multi>
+  @for (order of orders(); track order.id) {
+    <mat-expansion-panel [expanded]="order.checkoutId === newCheckout" class="order">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span class="number">{{ order.orderNumber }}</span>
+          <span class="date">{{ order.createdAt | date: 'dd.MM.yyyy' }}</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          <span>{{ order.shop.name }}</span>
+          <span
+            class="status-chip"
+            [class.open]="order.status === 'OPEN'"
+            [class.shipped]="order.status === 'SHIPPED'"
+          >
+            {{ statusLabels[order.status] }}
+          </span>
+          <strong>{{ order.totalCents | euro }}</strong>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="details">
+        <table class="items">
+          <thead>
+            <tr>
+              <th>Artikel</th>
+              <th>Menge</th>
+              <th>Einzelpreis</th>
+              <th>Summe</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of order.items; track item.id) {
+              <tr>
+                <td>
+                  @if (item.bookId) {
+                    <a [routerLink]="['/buch', item.bookId]">{{ item.title }}</a>
+                  } @else {
+                    {{ item.title }}
+                  }
+                  <div class="author">{{ item.author }}</div>
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unitPriceCents | euro }}</td>
+                <td>{{ item.lineTotalCents | euro }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">Zwischensumme</td>
+              <td>{{ order.subtotalCents | euro }}</td>
+            </tr>
+            <tr>
+              <td colspan="3">Versand</td>
+              <td>{{ order.shippingCents | euro }}</td>
+            </tr>
+            <tr class="total">
+              <td colspan="3">Gesamt (inkl. MwSt.)</td>
+              <td>{{ order.totalCents | euro }}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="side">
+          <div class="label">Lieferadresse</div>
+          <address>
+            {{ order.shippingName }}<br />
+            {{ order.shippingStreet }}<br />
+            {{ order.shippingZip }} {{ order.shippingCity }}<br />
+            {{ order.shippingCountry }}
+          </address>
+          <button
+            mat-stroked-button
+            class="invoice"
+            [disabled]="downloading() === order.id"
+            (click)="downloadInvoice(order)"
+          >
+            <mat-icon>picture_as_pdf</mat-icon> Rechnung (PDF)
+          </button>
+          @if (order.shippedAt) {
+            <div class="label">Versendet am</div>
+            <div>{{ order.shippedAt | date: 'dd.MM.yyyy' }}</div>
+          }
+        </div>
+      </div>
+    </mat-expansion-panel>
+  }
+</mat-accordion>

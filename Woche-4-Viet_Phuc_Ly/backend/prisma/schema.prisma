@@ -1,0 +1,121 @@
+// backend/prisma/schema.prisma – "Amazing" Marktplatz
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs" // wichtig, damit Prisma 7 mit Nestjs funktioniert
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  MERCHANT
+  ADMIN
+}
+
+enum OrderStatus {
+  OPEN // offen: noch nicht versendet
+  SHIPPED // bearbeitet: versendet
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  shops  Shop[] // nur für Händler
+  orders Order[] // nur für Kunden
+}
+
+model Shop {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  city        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  ownerId Int
+  owner   User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  books   Book[]
+  orders  Order[]
+
+  @@index([ownerId])
+}
+
+model Book {
+  id          Int      @id @default(autoincrement())
+  title       String
+  author      String
+  isbn        String?
+  description String?
+  coverUrl    String?
+  priceCents  Int // Preis in Cent (brutto inkl. 7 % MwSt.)
+  stock       Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  shopId     Int
+  shop       Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([shopId])
+  @@index([title])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  orderNumber String      @unique // z. B. AMZ-2026-000042
+  checkoutId  String // gruppiert Bestellungen aus demselben Checkout
+  status      OrderStatus @default(OPEN)
+
+  // Lieferadresse (Snapshot zum Bestellzeitpunkt)
+  shippingName    String
+  shippingStreet  String
+  shippingZip     String
+  shippingCity    String
+  shippingCountry String @default("Deutschland")
+
+  subtotalCents Int
+  shippingCents Int
+  totalCents    Int
+
+  createdAt DateTime  @default(now())
+  shippedAt DateTime?
+
+  customerId Int
+  customer   User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  shopId     Int
+  shop       Shop        @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  items      OrderItem[]
+
+  @@index([customerId])
+  @@index([shopId, status])
+  @@index([checkoutId])
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+
+  // Snapshot: spätere Änderungen am Buch ändern alte Bestellungen/Rechnungen nicht
+  title          String
+  author         String
+  unitPriceCents Int
+  quantity       Int
+  lineTotalCents Int
+
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  bookId  Int?
+  book    Book? @relation(fields: [bookId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([bookId])
+}

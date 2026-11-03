@@ -1,0 +1,145 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.group {
+  background: #fff;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.group-header,
+.group-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--mat-sys-surface-container-low);
+}
+
+.group-footer {
+  justify-content: space-between;
+  font-size: 13px;
+
+  .free {
+    color: #1e7b34;
+    font-weight: 500;
+  }
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 16px;
+  padding: 16px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  font-size: 11px;
+
+  .info {
+    font-size: 14px;
+  }
+
+  .title {
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .author {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .qty {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .count {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .remove {
+    margin-left: 8px;
+  }
+
+  .price {
+    font: var(--mat-sys-title-medium);
+  }
+}
+
+.summary {
+  position: sticky;
+  top: 88px;
+  background: #fff;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  h2 {
+    margin: 0 0 8px;
+    font: var(--mat-sys-title-large);
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .total {
+    font: var(--mat-sys-title-medium);
+  }
+
+  small {
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .hint {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    background: #eef4ff;
+    padding: 8px;
+    border-radius: 8px;
+
+    mat-icon {
+      color: var(--mat-sys-primary);
+      flex-shrink: 0;
+    }
+  }
+
+  .checkout {
+    background: #f59e0b;
+    color: #1f2937;
+    margin-top: 8px;
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 48px;
+
+  mat-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

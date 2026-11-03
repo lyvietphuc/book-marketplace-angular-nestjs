@@ -1,0 +1,89 @@
+<mat-toolbar class="topbar">
+  <a routerLink="/" class="logo" aria-label="Amazing – Startseite">
+    <mat-icon>auto_stories</mat-icon>
+    <span>amazing</span>
+  </a>
+
+  @if (!auth.hasRole('MERCHANT', 'ADMIN')) {
+    <form class="search" (ngSubmit)="search()" role="search">
+      <input
+        name="q"
+        [(ngModel)]="searchText"
+        placeholder="Titel, Autor oder ISBN suchen"
+        aria-label="Bücher suchen"
+      />
+      <button type="submit" aria-label="Suchen"><mat-icon>search</mat-icon></button>
+    </form>
+  } @else {
+    <span class="spacer"></span>
+  }
+
+  <nav class="nav">
+    @if (auth.hasRole('ADMIN')) {
+      <a mat-button routerLink="/admin" routerLinkActive="active"
+        ><mat-icon>admin_panel_settings</mat-icon> Administration</a
+      >
+    }
+    @if (auth.hasRole('MERCHANT')) {
+      <a mat-button routerLink="/haendler" routerLinkActive="active"
+        ><mat-icon>dashboard</mat-icon> Händlerbereich</a
+      >
+    }
+    @if (!auth.hasRole('MERCHANT', 'ADMIN')) {
+      <a mat-button routerLink="/shops" routerLinkActive="active">Shops</a>
+    }
+
+    @if (auth.isLoggedIn()) {
+      <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+        <mat-icon>account_circle</mat-icon>
+        <span class="user-text">
+          <small>Hallo, {{ auth.displayName() }}</small>
+          <strong>{{ roleLabels[auth.role()!] }}</strong>
+        </span>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        @if (auth.hasRole('MERCHANT')) {
+          <a mat-menu-item routerLink="/haendler/buecher"
+            ><mat-icon>menu_book</mat-icon>Meine Bücher</a
+          >
+          <a mat-menu-item routerLink="/haendler/shops"
+            ><mat-icon>storefront</mat-icon>Meine Shops</a
+          >
+        }
+        @if (auth.hasRole('ADMIN')) {
+          <a mat-menu-item routerLink="/admin/uebersicht"
+            ><mat-icon>space_dashboard</mat-icon>Übersicht</a
+          >
+          <a mat-menu-item routerLink="/admin/haendler"><mat-icon>storefront</mat-icon>Händler</a>
+          <a mat-menu-item routerLink="/admin/kunden"><mat-icon>group</mat-icon>Kunden</a>
+        }
+        <a mat-menu-item routerLink="/profile"><mat-icon>person</mat-icon>Mein Profil</a>
+        <mat-divider />
+        <button mat-menu-item (click)="logout()"><mat-icon>logout</mat-icon>Abmelden</button>
+      </mat-menu>
+    } @else {
+      <a mat-button routerLink="/login"><mat-icon>login</mat-icon> Anmelden</a>
+      <a mat-flat-button routerLink="/register" class="register">Registrieren</a>
+    }
+
+    @if (!auth.hasRole('MERCHANT', 'ADMIN')) {
+      <a mat-button routerLink="/warenkorb" class="cart" aria-label="Warenkorb">
+        <mat-icon
+          [matBadge]="cart.count()"
+          [matBadgeHidden]="cart.count() === 0"
+          matBadgeColor="warn"
+          >shopping_cart</mat-icon
+        >
+        Warenkorb
+      </a>
+    }
+  </nav>
+</mat-toolbar>
+
+<main class="content">
+  <router-outlet />
+</main>
+
+<footer class="footer">
+  <span>© Amazing Marktplatz – ProPra Uni Siegen (Übungsprojekt, keine echten Bestellungen)</span>
+</footer>

@@ -1,0 +1,85 @@
+<h2 mat-dialog-title>{{ book ? 'Buch bearbeiten' : 'Neues Buch anbieten' }}</h2>
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content>
+    @if (errorMessage()) {
+      <p class="error-box" role="alert">{{ errorMessage() }}</p>
+    }
+    <div class="fields">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Shop</mat-label>
+        <mat-select formControlName="shopId">
+          @for (shop of data.shops; track shop.id) {
+            <mat-option [value]="shop.id">{{ shop.name }} ({{ shop.city }})</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Titel</mat-label>
+        <input matInput formControlName="title" />
+        @if (form.controls.title.hasError('required')) {
+          <mat-error>Bitte einen Titel eingeben.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Autor</mat-label>
+        <input matInput formControlName="author" />
+        @if (form.controls.author.hasError('required')) {
+          <mat-error>Bitte einen Autor eingeben.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>ISBN (optional)</mat-label>
+        <input matInput formControlName="isbn" placeholder="9783..." />
+        @if (form.controls.isbn.hasError('pattern')) {
+          <mat-error>10 oder 13 Ziffern.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Preis</mat-label>
+        <input matInput formControlName="price" placeholder="12,99" inputmode="decimal" />
+        <span matTextSuffix>&nbsp;€</span>
+        <mat-hint>inkl. 7 % MwSt.</mat-hint>
+        @if (form.controls.price.hasError('required')) {
+          <mat-error>Bitte einen Preis eingeben.</mat-error>
+        } @else if (form.controls.price.hasError('pattern')) {
+          <mat-error>Gültiger Preis, z. B. 12,99</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Bestand</mat-label>
+        <input matInput type="number" min="0" formControlName="stock" />
+        <span matTextSuffix>&nbsp;Stück</span>
+        @if (form.controls.stock.invalid) {
+          <mat-error>Bestand muss ≥ 0 sein.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Cover-URL (optional)</mat-label>
+        <input matInput formControlName="coverUrl" placeholder="https://..." />
+        <mat-hint>Ohne URL wird ein Cover automatisch erzeugt.</mat-hint>
+        @if (form.controls.coverUrl.hasError('pattern')) {
+          <mat-error>Die URL muss mit http:// oder https:// beginnen.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Beschreibung (optional)</mat-label>
+        <textarea matInput rows="3" formControlName="description"></textarea>
+      </mat-form-field>
+
+      <mat-slide-toggle formControlName="published" class="full"
+        >Im Marktplatz sichtbar</mat-slide-toggle
+      >
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Abbrechen</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">Speichern</button>
+  </mat-dialog-actions>
+</form>

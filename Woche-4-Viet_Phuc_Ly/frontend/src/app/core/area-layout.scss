@@ -1,0 +1,68 @@
+// Gemeinsames Layout für Händler- und Adminbereich
+.area {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.side {
+  position: sticky;
+  top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  .area-title {
+    font: var(--mat-sys-label-large);
+    color: var(--mat-sys-on-surface-variant);
+    padding: 4px 12px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 12px;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--mat-sys-surface-container);
+    }
+
+    &.active {
+      background: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
+      font-weight: 500;
+    }
+  }
+}
+
+.main {
+  min-width: 0;
+}
+
+@media (max-width: 800px) {
+  .area {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    .area-title {
+      width: 100%;
+    }
+  }
+}

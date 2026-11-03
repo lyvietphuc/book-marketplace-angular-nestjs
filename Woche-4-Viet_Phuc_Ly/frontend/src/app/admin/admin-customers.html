@@ -1,0 +1,79 @@
+<h1 class="page-title">Kunden</h1>
+<p class="intro">Klicken Sie auf einen Kunden, um seine Bestellungen zu sehen.</p>
+
+<div class="table-card">
+  <table class="list">
+    <thead>
+      <tr>
+        <th>Kunde</th>
+        <th>Registriert</th>
+        <th>Bestellungen</th>
+        <th>Letzte Bestellung</th>
+        <th>Umsatz</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of customers(); track c.id) {
+        <tr
+          class="merchant clickable"
+          (click)="toggle(c)"
+          [class.selected]="selected()?.id === c.id"
+        >
+          <td>
+            <strong>{{ c.name ?? '–' }}</strong>
+            <div class="sub">{{ c.email }}</div>
+          </td>
+          <td>{{ c.createdAt | date: 'dd.MM.yyyy' }}</td>
+          <td>{{ c.orders }}</td>
+          <td>{{ c.lastOrderAt ? (c.lastOrderAt | date: 'dd.MM.yyyy') : '–' }}</td>
+          <td>
+            <strong>{{ c.totalSpentCents | euro }}</strong>
+          </td>
+          <td class="toggle">
+            <mat-icon>{{ selected()?.id === c.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </td>
+        </tr>
+        @if (selected()?.id === c.id) {
+          <tr class="orders-row">
+            <td colspan="6">
+              @if (loading()) {
+                <p class="sub">Lade Bestellungen …</p>
+              }
+              @for (o of orders(); track o.id) {
+                <div class="order">
+                  <div class="order-head">
+                    <span class="number">{{ o.orderNumber }}</span>
+                    <span>{{ o.createdAt | date: 'dd.MM.yyyy' }}</span>
+                    <span>{{ o.shop.name }}</span>
+                    <span
+                      class="status-chip"
+                      [class.open]="o.status === 'OPEN'"
+                      [class.shipped]="o.status === 'SHIPPED'"
+                    >
+                      {{ statusLabels[o.status] }}
+                    </span>
+                    <strong>{{ o.totalCents | euro }}</strong>
+                  </div>
+                  <div class="order-items">
+                    @for (i of o.items; track i.id) {
+                      <span>{{ i.quantity }} × {{ i.title }}</span>
+                    }
+                  </div>
+                </div>
+              } @empty {
+                @if (!loading()) {
+                  <p class="sub">Dieser Kunde hat noch nicht bestellt.</p>
+                }
+              }
+            </td>
+          </tr>
+        }
+      } @empty {
+        <tr>
+          <td colspan="6" class="empty">Keine Kunden registriert.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

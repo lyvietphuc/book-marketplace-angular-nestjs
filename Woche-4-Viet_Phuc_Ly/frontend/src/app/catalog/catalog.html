@@ -1,0 +1,103 @@
+<div class="layout">
+  <aside class="filters">
+    <h3>Filter</h3>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Sortieren nach</mat-label>
+      <mat-select [value]="sort()" (selectionChange)="setFilter({ sort: $event.value })">
+        @for (s of sorts; track s.value) {
+          <mat-option [value]="s.value">{{ s.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Shop</mat-label>
+      <mat-select
+        [value]="shopId() ?? null"
+        (selectionChange)="setFilter({ shopId: $event.value })"
+      >
+        <mat-option [value]="null">Alle Shops</mat-option>
+        @for (shop of shops(); track shop.id) {
+          <mat-option [value]="shop.id">{{ shop.name }} ({{ shop.city }})</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="price-range">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Preis ab €</mat-label>
+        <input
+          matInput
+          type="number"
+          min="0"
+          [ngModel]="minPrice()"
+          (change)="setFilter({ min: $any($event.target).value })"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>bis €</mat-label>
+        <input
+          matInput
+          type="number"
+          min="0"
+          [ngModel]="maxPrice()"
+          (change)="setFilter({ max: $any($event.target).value })"
+        />
+      </mat-form-field>
+    </div>
+
+    <mat-checkbox [checked]="inStock()" (change)="setFilter({ inStock: $event.checked })">
+      Nur verfügbare Bücher
+    </mat-checkbox>
+
+    <button mat-button (click)="resetFilters()">
+      <mat-icon>filter_alt_off</mat-icon> Filter zurücksetzen
+    </button>
+  </aside>
+
+  <section class="results">
+    <div class="results-header">
+      @if (q()) {
+        <h2>Ergebnisse für „{{ q() }}“</h2>
+      } @else {
+        <h2>Alle Bücher</h2>
+      }
+      <span class="count">{{ total() }} {{ total() === 1 ? 'Buch' : 'Bücher' }}</span>
+    </div>
+
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+    @if (errorMessage()) {
+      <p class="error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (!loading() && books().length === 0 && !errorMessage()) {
+      <div class="empty">
+        <mat-icon>search_off</mat-icon>
+        <p>
+          Keine Bücher gefunden. Versuchen Sie einen anderen Suchbegriff oder entfernen Sie Filter.
+        </p>
+      </div>
+    }
+
+    <div class="grid">
+      @for (book of books(); track book.id) {
+        <app-book-card [book]="book">
+          <app-add-to-cart-button [book]="book" />
+        </app-book-card>
+      }
+    </div>
+
+    @if (total() > pageSize) {
+      <mat-paginator
+        [length]="total()"
+        [pageSize]="pageSize"
+        [pageIndex]="page() - 1"
+        [hidePageSize]="true"
+        (page)="onPage($event)"
+      />
+    }
+  </section>
+</div>

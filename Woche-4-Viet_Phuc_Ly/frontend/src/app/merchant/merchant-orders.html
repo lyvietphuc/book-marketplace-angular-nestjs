@@ -1,0 +1,121 @@
+<h1 class="page-title">Bestellungen</h1>
+
+@if (errorMessage()) {
+  <p class="error-box" role="alert">{{ errorMessage() }}</p>
+}
+
+<ng-template #orderList let-list>
+  @for (order of list; track order.id) {
+    <mat-expansion-panel class="order">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span class="number">{{ order.orderNumber }}</span>
+          <span class="date">{{ order.createdAt | date: 'dd.MM.yyyy, HH:mm' }}</span>
+        </mat-panel-title>
+        <mat-panel-description>
+          <span>{{ order.shippingName }} · {{ order.shippingCity }}</span>
+          <span class="shop">{{ order.shop.name }}</span>
+          <span>{{ itemCount(order) }} {{ itemCount(order) === 1 ? 'Buch' : 'Bücher' }}</span>
+          <strong>{{ order.totalCents | euro }}</strong>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="details">
+        <table class="items">
+          <thead>
+            <tr>
+              <th>Artikel</th>
+              <th>Menge</th>
+              <th>Summe</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of order.items; track item.id) {
+              <tr>
+                <td>
+                  {{ item.title }}
+                  <div class="author">{{ item.author }}</div>
+                </td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.lineTotalCents | euro }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Versand</td>
+              <td>{{ order.shippingCents | euro }}</td>
+            </tr>
+            <tr class="total">
+              <td colspan="2">Gesamt</td>
+              <td>{{ order.totalCents | euro }}</td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="side">
+          <div class="label">Lieferadresse</div>
+          <address>
+            {{ order.shippingName }}<br />{{ order.shippingStreet }}<br />
+            {{ order.shippingZip }} {{ order.shippingCity }}<br />{{ order.shippingCountry }}
+          </address>
+          <div class="label">Status</div>
+          <div>
+            <span
+              class="status-chip"
+              [class.open]="order.status === 'OPEN'"
+              [class.shipped]="order.status === 'SHIPPED'"
+            >
+              {{ statusLabel(order.status) }}
+            </span>
+            @if (order.shippedAt) {
+              <span class="shipped-at">am {{ order.shippedAt | date: 'dd.MM.yyyy' }}</span>
+            }
+          </div>
+          <div class="actions">
+            <button mat-stroked-button (click)="label(order)">
+              <mat-icon>local_shipping</mat-icon> Versandlabel (PDF)
+            </button>
+            @if (order.status === 'OPEN') {
+              <button
+                mat-flat-button
+                [disabled]="busy() === order.id"
+                (click)="setStatus(order, 'SHIPPED')"
+              >
+                <mat-icon>check</mat-icon> Als versendet markieren
+              </button>
+            } @else {
+              <button
+                mat-button
+                [disabled]="busy() === order.id"
+                (click)="setStatus(order, 'OPEN')"
+              >
+                <mat-icon>undo</mat-icon> Wieder öffnen
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  } @empty {
+    <p class="empty">Keine Bestellungen in dieser Liste.</p>
+  }
+</ng-template>
+
+<mat-tab-group animationDuration="150ms">
+  <mat-tab [label]="'Offen (' + open().length + ')'">
+    <div class="tab">
+      <ng-container
+        [ngTemplateOutlet]="orderList"
+        [ngTemplateOutletContext]="{ $implicit: open() }"
+      />
+    </div>
+  </mat-tab>
+  <mat-tab [label]="'Versendet (' + shipped().length + ')'">
+    <div class="tab">
+      <ng-container
+        [ngTemplateOutlet]="orderList"
+        [ngTemplateOutletContext]="{ $implicit: shipped() }"
+      />
+    </div>
+  </mat-tab>
+</mat-tab-group>

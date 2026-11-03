@@ -1,0 +1,88 @@
+<h1 class="page-title">Warenkorb</h1>
+
+@if (cart.items().length === 0) {
+  <div class="empty">
+    <mat-icon>remove_shopping_cart</mat-icon>
+    <p>Ihr Warenkorb ist leer.</p>
+    <a mat-flat-button routerLink="/">Bücher entdecken</a>
+  </div>
+} @else {
+  <div class="layout">
+    <section>
+      @for (group of cart.groups(); track group.shop.id) {
+        <div class="group">
+          <div class="group-header">
+            <mat-icon>storefront</mat-icon>
+            Verkauft und versendet von <strong>{{ group.shop.name }}</strong>
+          </div>
+          @for (item of group.items; track item.bookId) {
+            <div class="item">
+              <app-book-cover class="cover" [title]="item.title" [author]="item.author" />
+              <div class="info">
+                <a [routerLink]="['/buch', item.bookId]" class="title">{{ item.title }}</a>
+                <div class="author">{{ item.author }}</div>
+                <div class="qty">
+                  <button
+                    mat-icon-button
+                    aria-label="Menge verringern"
+                    [disabled]="item.quantity <= 1"
+                    (click)="cart.setQuantity(item.bookId, item.quantity - 1)"
+                  >
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  <span class="count">{{ item.quantity }}</span>
+                  <button
+                    mat-icon-button
+                    aria-label="Menge erhöhen"
+                    [disabled]="item.quantity >= item.stock"
+                    [matTooltip]="item.quantity >= item.stock ? 'Nicht mehr auf Lager' : ''"
+                    (click)="cart.setQuantity(item.bookId, item.quantity + 1)"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                  <button mat-button class="remove" (click)="cart.remove(item.bookId)">
+                    Entfernen
+                  </button>
+                </div>
+              </div>
+              <div class="price">{{ item.priceCents * item.quantity | euro }}</div>
+            </div>
+          }
+          <div class="group-footer">
+            <span>Versand {{ group.shop.name }}</span>
+            @if (group.shippingCents === 0) {
+              <span class="free">kostenlos</span>
+            } @else {
+              <span
+                >{{ group.shippingCents | euro }}
+                <small>(kostenlos ab {{ freeFrom | euro }})</small></span
+              >
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <aside class="summary">
+      <h2>Zusammenfassung</h2>
+      <div class="row">
+        <span>Artikel ({{ cart.count() }})</span><span>{{ cart.subtotalCents() | euro }}</span>
+      </div>
+      <div class="row">
+        <span>Versand</span><span>{{ cart.shippingCents() | euro }}</span>
+      </div>
+      <mat-divider />
+      <div class="row total">
+        <span>Gesamt</span><span>{{ cart.totalCents() | euro }}</span>
+      </div>
+      <small>inkl. 7 % MwSt.</small>
+      @if (cart.groups().length > 1) {
+        <p class="hint">
+          <mat-icon>info</mat-icon>
+          Ihre Bestellung wird in {{ cart.groups().length }} Lieferungen aufgeteilt (eine pro Shop).
+        </p>
+      }
+      <a mat-flat-button routerLink="/kasse" class="checkout">Zur Kasse</a>
+    </aside>
+  </div>
+}

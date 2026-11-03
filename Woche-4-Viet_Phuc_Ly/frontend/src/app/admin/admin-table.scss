@@ -1,0 +1,111 @@
+.intro {
+  margin-top: -8px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.list {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th,
+  td {
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    vertical-align: middle;
+  }
+
+  th {
+    font-weight: 500;
+    background: var(--mat-sys-surface-container-low);
+  }
+
+  th:not(:first-child):not(:last-child),
+  td:not(:first-child):not(:last-child) {
+    text-align: right;
+  }
+
+  td:last-child,
+  th:last-child {
+    text-align: right;
+  }
+
+  .sub {
+    font-size: 12px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .shop td {
+    background: #fafafa;
+    font-size: 13px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      vertical-align: middle;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .clickable {
+    cursor: pointer;
+
+    &:hover td {
+      background: var(--mat-sys-surface-container-low);
+    }
+  }
+
+  .selected td {
+    background: var(--mat-sys-primary-container);
+  }
+
+  .toggle mat-icon {
+    vertical-align: middle;
+  }
+
+  .orders-row > td {
+    background: #fafafa;
+    padding: 8px 16px 16px;
+    text-align: left !important;
+  }
+
+  .empty {
+    text-align: center !important;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.order {
+  background: #fff;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 8px;
+}
+
+.order-head {
+  display: grid;
+  grid-template-columns: 150px 90px 1fr 90px 90px;
+  gap: 12px;
+  align-items: center;
+
+  strong {
+    text-align: right;
+  }
+}
+
+.number {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
+}
+
+.order-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+}
